@@ -7,7 +7,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 
-import { ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiNotFoundResponse,
+} from '@nestjs/swagger';
 import { AuthGuard } from '../auth/auth.guard';
 import {
   ApiCreatedResponse,
@@ -30,17 +34,21 @@ export class OrderController {
   @ApiOperation({ summary: 'Get orders. ' })
   @ApiOkResponse({ type: OrderResponseDto, isArray: true })
   async findAll(): Promise<OrderResponseDto[]> {
-    return this.orderService.findAll();
+    return await this.orderService.findAll();
   }
 
   @Post()
   @ApiOperation({ summary: 'Create order. ' })
   @ApiCreatedResponse({ type: OrderResponseDto })
+  @ApiBadRequestResponse({
+    description: 'Invalid input data or insufficient stock.',
+  })
+  @ApiNotFoundResponse({ description: 'Product not found.' })
   async create(
     @Body() order: CreateOrderDto,
     @Request() req: { user: { sub: string } },
   ): Promise<OrderResponseDto> {
     const userId = req.user.sub;
-    return this.orderService.create(userId, order.items);
+    return await this.orderService.create(userId, order.items);
   }
 }

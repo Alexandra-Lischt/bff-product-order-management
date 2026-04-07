@@ -23,6 +23,6 @@ export class UserController {
   @ApiBadRequestResponse({ description: 'Invalid input data' })
   @ApiUnprocessableEntityResponse({ description: 'User already exists' })
   async createUser(@Body() user: User): Promise<UserResponseDto> {
-    return this.userService.create(user);
+    return await this.userService.create(user);
   }
 }

@@ -11,7 +11,11 @@ import {
   HttpCode,
 } from '@nestjs/common';
 
-import { ApiBearerAuth, ApiNoContentResponse } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiNoContentResponse,
+} from '@nestjs/swagger';
 import { AuthGuard } from '../auth/auth.guard';
 import { ProductService } from './product.service';
 import { ProductResponseDto } from './dto/product-response.dto';
@@ -43,24 +47,25 @@ export class ProductController {
   @ApiOperation({ summary: 'Create product.' })
   @ApiCreatedResponse({ type: ProductResponseDto })
   async create(@Body() product: Product): Promise<ProductResponseDto> {
-    return this.productService.create(product);
+    return await this.productService.create(product);
   }
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update product.' })
   @ApiNoContentResponse()
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiNotFoundResponse()
+  @ApiNotFoundResponse({ description: 'Product not found.' })
   async update(
     @Param('id') id: string,
     @Body() product: Product,
   ): Promise<void> {
-    return this.productService.update(id, product);
+    return await this.productService.update(id, product);
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete product.' })
   @ApiNoContentResponse()
+  @ApiBadRequestResponse({ description: 'Product not found.' })
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(@Param('id') id: string): Promise<void> {
     await this.productService.delete(id);
